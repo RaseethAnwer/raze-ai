@@ -1,17 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { login } from '../services/authService';
-import { Lock, Mail, Loader2, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { Sparkles, Mail, Lock, Loader2 } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
     const navigate = useNavigate();
-    const { theme, toggleTheme } = useTheme();
+
+    // Track cursor for interactive background
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setCursorPos({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,21 +36,18 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gemini-black dark:bg-gemini-black relative overflow-hidden">
-            {/* Interactive Background */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-20 left-20 w-96 h-96 bg-gemini-violet/10 rounded-full blur-3xl animate-blob"></div>
-                <div className="absolute bottom-20 right-20 w-96 h-96 bg-gemini-violet-light/10 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gemini-violet/5 rounded-full blur-3xl"></div>
-            </div>
-
-            {/* Theme Toggle */}
-            <button
-                onClick={toggleTheme}
-                className="fixed top-6 right-6 z-50 p-3 glass-panel hover:bg-white/10 text-gemini-text rounded-xl transition-all shadow-lg"
-            >
-                {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
-            </button>
+        <div className="min-h-screen flex items-center justify-center bg-gemini-black relative overflow-hidden">
+            {/* Playful Animated Background with Mouse Tracking */}
+            <div
+                className="absolute inset-0 pointer-events-none overflow-hidden"
+                style={{
+                    background: `radial-gradient(600px circle at ${cursorPos.x}px ${cursorPos.y}px, rgba(181, 55, 255, 0.15), transparent 40%)`
+                }}
+            />
+            <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob" />
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl animate-blob-reverse animation-delay-4000" />
+            <div className="absolute bottom-40 left-40 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl animate-blob animation-delay-2000" />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -50,13 +55,17 @@ const Login = () => {
                 className="glass-panel p-10 w-full max-w-md z-10 border border-white/10 shadow-2xl"
             >
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-gemini-violet to-gemini-violet-light rounded-2xl flex items-center justify-center mb-4 mx-auto shadow-lg shadow-gemini-violet/30">
-                        <Lock size={32} className="text-white" />
+                    {/* Raze AI Logo */}
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mb-4 mx-auto shadow-2xl shadow-purple-500/40 animate-pulse">
+                        <Sparkles size={40} className="text-white" />
                     </div>
-                    <h2 className="text-4xl font-bold bg-gradient-to-r from-white to-gemini-text bg-clip-text text-transparent">
+                    <h1 className="text-5xl font-bold mb-2 animated-gradient bg-clip-text text-transparent">
+                        Raze AI
+                    </h1>
+                    <h2 className="text-2xl font-semibold text-white mb-2">
                         Welcome Back
                     </h2>
-                    <p className="text-gemini-text/60 mt-2">Sign in to continue to your account</p>
+                    <p className="text-gemini-text/60">Sign in to continue your AI journey</p>
                 </div>
 
                 {error && (
@@ -78,7 +87,7 @@ const Login = () => {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full glass-input bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gemini-text/40 outline-none transition-all text-base"
+                                className="w-full glass-input bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gemini-text/40 outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all text-base"
                                 placeholder="name@example.com"
                                 required
                             />
@@ -93,7 +102,7 @@ const Login = () => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full glass-input bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gemini-text/40 outline-none transition-all text-base"
+                                className="w-full glass-input bg-white/5 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gemini-text/40 outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all text-base"
                                 placeholder="••••••••"
                                 required
                             />
@@ -103,7 +112,7 @@ const Login = () => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gradient-to-r from-gemini-violet to-gemini-violet-light hover:opacity-90 text-white font-medium py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center shadow-lg shadow-gemini-violet/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90 text-white font-medium py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center shadow-lg shadow-purple-500/40 disabled:opacity-50 disabled:cursor-not-allowed btn-glow"
                     >
                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
                     </button>
@@ -111,7 +120,7 @@ const Login = () => {
 
                 <p className="mt-6 text-center text-gemini-text/60 text-sm">
                     Don't have an account?{' '}
-                    <Link to="/register" className="text-gemini-violet-light hover:text-gemini-violet font-medium transition-colors">
+                    <Link to="/register" className="gradient-text font-medium hover:opacity-80 transition-opacity">
                         Sign up
                     </Link>
                 </p>

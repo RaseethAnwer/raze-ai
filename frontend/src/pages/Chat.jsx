@@ -20,6 +20,7 @@ const Chat = () => {
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName') || 'User';
 
     useEffect(() => {
         loadSessions();
@@ -235,14 +236,17 @@ const Chat = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="text-center space-y-4"
                         >
-                            <div className="w-20 h-20 bg-gradient-to-br from-gemini-violet to-gemini-violet-light rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-2xl shadow-gemini-violet/30">
+                            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-2xl shadow-purple-500/40">
                                 <MessageSquare size={40} className="text-white" />
                             </div>
-                            <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-gemini-text bg-clip-text text-transparent">
-                                Hey There!
+                            <h1 className="text-6xl font-bold mb-2 animated-gradient bg-clip-text text-transparent">
+                                Raze AI
                             </h1>
+                            <h2 className="text-3xl font-semibold text-white mb-2">
+                                Hi {userName}! 👋
+                            </h2>
                             <p className="text-xl text-gemini-text/70 font-light">
-                                How can I help you today?
+                                Welcome to Raze AI. How can I help you today?
                             </p>
                         </motion.div>
 

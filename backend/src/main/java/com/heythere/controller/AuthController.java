@@ -19,7 +19,12 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody User user) {
         try {
             String token = authService.register(user);
-            return ResponseEntity.ok(Map.of("token", token, "userId", authService.getUserByEmail(user.getEmail()).getId()));
+            User savedUser = authService.getUserByEmail(user.getEmail());
+            return ResponseEntity.ok(Map.of(
+                "token", token, 
+                "userId", savedUser.getId(),
+                "name", savedUser.getName()
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -29,7 +34,12 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         try {
             String token = authService.login(loginRequest.get("email"), loginRequest.get("password"));
-            return ResponseEntity.ok(Map.of("token", token, "userId", authService.getUserByEmail(loginRequest.get("email")).getId()));
+            User user = authService.getUserByEmail(loginRequest.get("email"));
+            return ResponseEntity.ok(Map.of(
+                "token", token, 
+                "userId", user.getId(),
+                "name", user.getName()
+            ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Invalid email or password");
         }
