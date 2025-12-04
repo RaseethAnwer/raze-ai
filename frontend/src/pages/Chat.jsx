@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Image as ImageIcon, Plus, MessageSquare, LogOut, Loader2, Menu, X, Sun, Moon } from 'lucide-react';
+import { Send, Image as ImageIcon, Plus, MessageSquare, LogOut, Loader2, Menu, X } from 'lucide-react';
 import { createSession, getUserSessions, getSessionMessages, sendMessage } from '../services/chatService';
 import { logout } from '../services/authService';
-import { useTheme } from '../context/ThemeContext';
+import ModelSelector from '../components/ModelSelector';
 
 const Chat = () => {
     const [sessions, setSessions] = useState([]);
@@ -14,12 +14,12 @@ const Chat = () => {
     const [image, setImage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [selectedModel, setSelectedModel] = useState('gemini-2.0-flash');
     const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const userId = localStorage.getItem('userId');
-    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         loadSessions();
@@ -102,7 +102,7 @@ const Chat = () => {
                 setSessions([newSession, ...sessions]);
             }
 
-            const response = await sendMessage(sessionId, tempMessage.messageText, image);
+            const response = await sendMessage(sessionId, selectedModel, tempMessage.messageText, image);
             setMessages(prev => [...prev, response]);
 
             if (messages.length === 0) {
@@ -126,17 +126,30 @@ const Chat = () => {
 
     const hasMessages = messages.length > 0;
 
+    // Get model display name
+    const getModelDisplayName = (modelId) => {
+        const modelNames = {
+            'gemini-2.0-flash': 'Gemini 2.0 Flash ⚡',
+            'gemini-vision': 'Gemini Vision 🖼️',
+            'google/gemma-3-4b-it:free': 'Gemma 3 4B Free 🔥',
+            'grok-2-latest': 'Grok 2 Latest 💎'
+        };
+        return modelNames[modelId] || modelId;
+    };
+
     return (
         <div className="flex h-screen bg-gemini-black dark:bg-gemini-black overflow-hidden relative">
-            {/* Interactive Background */}
+            {/* Interactive Background with Vibrant Blobs */}
             <div
                 className="absolute inset-0 pointer-events-none overflow-hidden"
                 style={{
-                    background: `radial-gradient(600px circle at ${cursorPos.x}px ${cursorPos.y}px, rgba(75, 0, 130, 0.15), transparent 40%)`
+                    background: `radial-gradient(600px circle at ${cursorPos.x}px ${cursorPos.y}px, rgba(181, 55, 255, 0.2), transparent 40%)`
                 }}
             />
-            <div className="absolute top-20 left-20 w-96 h-96 bg-gemini-violet/10 rounded-full blur-3xl animate-blob" />
-            <div className="absolute bottom-20 right-20 w-96 h-96 bg-gemini-violet-light/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute top-20 left-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-blob" />
+            <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-pink-500/15 rounded-full blur-3xl animate-blob-reverse animation-delay-4000" />
+            <div className="absolute bottom-40 left-40 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl animate-blob animation-delay-2000" />
 
             {/* Mobile Sidebar Toggle */}
             <button
@@ -158,20 +171,18 @@ const Chat = () => {
                         <div className="p-4 space-y-3">
                             <button
                                 onClick={handleNewChat}
-                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-gemini-violet to-gemini-violet-light hover:opacity-90 text-white rounded-xl transition-all shadow-lg shadow-gemini-violet/20 font-medium"
+                                className="w-full flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90 text-white rounded-xl transition-all shadow-lg shadow-purple-500/30 font-medium btn-glow"
                             >
                                 <Plus size={20} />
                                 <span>New Chat</span>
                             </button>
-
-                            <button
-                                onClick={toggleTheme}
-                                className="w-full flex items-center gap-3 px-4 py-3 glass-panel hover:bg-white/10 text-gemini-text rounded-xl transition-all"
-                            >
-                                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                                <span className="font-medium">{theme === 'dark' ? 'Light' : 'Dark'} Mode</span>
-                            </button>
                         </div>
+
+                        {/* Model Selector */}
+                        <ModelSelector
+                            selectedModel={selectedModel}
+                            onSelectModel={setSelectedModel}
+                        />
 
                         <div className="flex-1 overflow-y-auto px-3 space-y-2 custom-scrollbar">
                             {sessions.map(session => (
@@ -179,8 +190,8 @@ const Chat = () => {
                                     key={session.sessionId}
                                     onClick={() => setCurrentSessionId(session.sessionId)}
                                     className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 transition-all ${currentSessionId === session.sessionId
-                                            ? 'bg-gemini-violet/20 text-white border border-gemini-violet/30'
-                                            : 'text-gemini-text/70 hover:bg-white/5 hover:text-gemini-text'
+                                        ? 'bg-gemini-violet/20 text-white border border-gemini-violet/30'
+                                        : 'text-gemini-text/70 hover:bg-white/5 hover:text-gemini-text'
                                         }`}
                                 >
                                     <MessageSquare size={18} />
@@ -204,6 +215,18 @@ const Chat = () => {
 
             {/* Main Chat Area */}
             <div className={`flex-1 flex flex-col h-full relative z-10 ${hasMessages ? '' : 'justify-center'}`}>
+                {/* Model Header - Show when messages exist */}
+                {hasMessages && (
+                    <div className="glass-panel/50 backdrop-blur-xl border-b border-white/5 px-6 py-3">
+                        <div className="max-w-4xl mx-auto flex items-center gap-2">
+                            <span className="text-sm text-gemini-text/60">AI Model:</span>
+                            <span className="text-sm font-semibold gradient-text">
+                                {getModelDisplayName(selectedModel)}
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {!hasMessages ? (
                     /* Centered Empty State with Input */
                     <div className="flex flex-col items-center justify-center px-4 max-w-3xl mx-auto w-full space-y-8">
@@ -292,8 +315,8 @@ const Chat = () => {
                                     className={`flex ${msg.sender === 'USER' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-5 ${msg.sender === 'USER'
-                                            ? 'bg-gradient-to-r from-gemini-violet to-gemini-violet-light text-white rounded-br-md shadow-lg shadow-gemini-violet/20'
-                                            : 'glass-panel text-gemini-text rounded-bl-md border border-white/10'
+                                        ? 'bg-gradient-to-r from-gemini-violet to-gemini-violet-light text-white rounded-br-md shadow-lg shadow-gemini-violet/20'
+                                        : 'glass-panel text-gemini-text rounded-bl-md border border-white/10'
                                         }`}>
                                         {msg.imagePath && (
                                             <img

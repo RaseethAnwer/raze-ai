@@ -25,7 +25,7 @@ public class ChatService {
     private ChatMessageRepository messageRepository;
 
     @Autowired
-    private GeminiService geminiService;
+    private AIService aiService;
 
     private final String UPLOAD_DIR = "uploads/";
 
@@ -44,15 +44,21 @@ public class ChatService {
         return messageRepository.findBySessionSessionIdOrderByTimestampAsc(sessionId);
     }
 
-    public ChatMessage sendMessage(Long sessionId, String text, MultipartFile image) throws IOException {
+    public ChatMessage sendMessage(Long sessionId, String model, String text, MultipartFile image) throws IOException {
         ChatSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        // Default model if not provided
+        if (model == null || model.isEmpty()) {
+            model = "gemini-2.0-flash";
+        }
 
         // Save User Message
         ChatMessage userMessage = new ChatMessage();
         userMessage.setSession(session);
         userMessage.setSender("USER");
         userMessage.setMessageText(text);
+        userMessage.setModelUsed(model);
 
         String imagePath = null;
         if (image != null && !image.isEmpty()) {
@@ -75,19 +81,15 @@ public class ChatService {
             sessionRepository.save(session);
         }
 
-        // Call Gemini
-        String aiResponseText;
-        if (imagePath != null) {
-            aiResponseText = geminiService.callGeminiWithImage(text, imagePath);
-        } else {
-            aiResponseText = geminiService.callGrok(text);
-        }
+        // Call AI using unified service
+        String aiResponseText = aiService.callAI(model, text, image);
 
         // Save AI Message
         ChatMessage aiMessage = new ChatMessage();
         aiMessage.setSession(session);
         aiMessage.setSender("AI");
         aiMessage.setMessageText(aiResponseText);
+        aiMessage.setModelUsed(model);
         return messageRepository.save(aiMessage);
     }
 }

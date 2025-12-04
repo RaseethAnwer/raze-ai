@@ -35,10 +35,11 @@ public class ChatController {
     @PostMapping("/send")
     public ResponseEntity<ChatMessage> sendMessage(
             @RequestParam Long sessionId,
+            @RequestParam(required = false, defaultValue = "gemini-2.0-flash") String model,
             @RequestParam(required = false, defaultValue = "") String text,
             @RequestParam(required = false) MultipartFile image) {
         try {
-            return ResponseEntity.ok(chatService.sendMessage(sessionId, text, image));
+            return ResponseEntity.ok(chatService.sendMessage(sessionId, model, text, image));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

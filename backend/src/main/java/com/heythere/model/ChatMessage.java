@@ -33,6 +33,8 @@ public class ChatMessage {
 
     private String imagePath;
 
+    private String modelUsed; // Track which AI model was used
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime timestamp;

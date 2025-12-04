@@ -15,9 +15,10 @@ export const getSessionMessages = async (sessionId) => {
     return response.data;
 };
 
-export const sendMessage = async (sessionId, text, imageFile) => {
+export const sendMessage = async (sessionId, model, text, imageFile) => {
     const formData = new FormData();
     formData.append('sessionId', sessionId);
+    formData.append('model', model);
     if (text) formData.append('text', text);
     if (imageFile) formData.append('image', imageFile);
 
