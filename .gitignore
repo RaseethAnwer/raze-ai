@@ -1,0 +1,33 @@
+# Backend - Gradle
+backend/.gradle/
+backend/build/
+backend/out/
+backend/bin/
+backend/.settings/
+backend/.classpath
+backend/.project
+
+# Backend - IDE
+backend/.idea/
+backend/*.iml
+backend/*.iws
+
+# Backend - Uploads
+backend/uploads/
+
+# Frontend - Node
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+
+# Frontend - IDE
+frontend/.idea/
+frontend/.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

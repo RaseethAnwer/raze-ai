@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gemini-black text-gemini-text transition-colors duration-300;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Light Mode Overrides */
+:root:not(.dark) body {
+  @apply bg-white text-gray-900;
+}
+
+:root:not(.dark) .glass-panel {
+  @apply bg-gray-50/80 border-gray-200;
+}
+
+:root:not(.dark) .glass-input {
+  @apply bg-gray-50 border-gray-300 focus:border-gemini-violet/70;
+}
+
+/* Light mode text colors */
+:root:not(.dark) .text-gemini-text {
+  @apply text-gray-900;
+}
+
+:root:not(.dark) .text-gemini-text\/80 {
+  @apply text-gray-700;
+}
+
+:root:not(.dark) .text-gemini-text\/70 {
+  @apply text-gray-600;
+}
+
+:root:not(.dark) .text-gemini-text\/60 {
+  @apply text-gray-500;
+}
+
+:root:not(.dark) .text-gemini-text\/50 {
+  @apply text-gray-400;
+}
+
+:root:not(.dark) .text-gemini-text\/40 {
+  @apply text-gray-400;
+}
+
+:root:not(.dark) .text-white {
+  @apply text-gray-900;
+}
+
+/* Light mode placeholder colors */
+:root:not(.dark) .placeholder-gemini-text\/50::placeholder {
+  @apply text-gray-400;
+}
+
+:root:not(.dark) .placeholder-gemini-text\/40::placeholder {
+  @apply text-gray-400;
+}
+
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl;
+}
+
+.glass-input {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 focus:border-gemini-violet/50 focus:ring-1 focus:ring-gemini-violet/50 transition-all duration-300;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700/50 rounded-full hover:bg-gray-600/50 transition-colors;
+}
+
+/* Light mode scrollbar */
+:root:not(.dark) ::-webkit-scrollbar-thumb {
+  @apply bg-gray-400/50 hover:bg-gray-500/50;
+}
