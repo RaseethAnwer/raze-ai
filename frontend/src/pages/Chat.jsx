@@ -6,6 +6,8 @@ import { createSession, getUserSessions, getSessionMessages, sendMessage } from 
 import { logout } from '../services/authService';
 import ModelDropdown from '../components/ModelDropdown';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090';
+
 const Chat = () => {
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
@@ -324,7 +326,7 @@ const Chat = () => {
                                             <img
                                                 src={msg.sender === 'USER' && msg.imagePath.startsWith('blob')
                                                     ? msg.imagePath
-                                                    : `http://localhost:8080/uploads/${msg.imagePath}`}
+                                                    : `${API_BASE_URL}/uploads/${msg.imagePath}`}
                                                 alt="Uploaded"
                                                 className="max-w-full rounded-xl mb-3 shadow-lg"
                                             />
