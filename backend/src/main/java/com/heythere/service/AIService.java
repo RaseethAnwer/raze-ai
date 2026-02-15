@@ -1,17 +1,16 @@
 package com.heythere.service;
 
 import com.google.genai.Client;
-import com.google.genai.types.*;
+import com.google.genai.types.GenerateContentResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.heythere.service.AIOrchestratorService;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -20,54 +19,38 @@ public class AIService {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    @Value("${openrouter.api.key}")
+    @Value("${gemma.api.key}")
     private String openrouterApiKey;
+
+    @Autowired
+    private AIOrchestratorService aiOrchestratorService;
 
     private static final String OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     /**
      * Unified AI call method that routes to the appropriate AI provider
-     * @param model The AI model to use (gemini-2.0-flash, gemini-vision, google/gemma-3-4b-it:free, grok-2-latest)
-     * @param message The user's message
-     * @param image Optional image file (required for gemini-vision)
-     * @return AI response text
      */
     public String callAI(String model, String message, MultipartFile image) throws IOException {
-        if (model == null || model.isEmpty()) {
-            model = "gemini-2.0-flash"; // Default model
-        }
-
-        // Route to appropriate AI provider
-        if (model.startsWith("gemini")) {
-            return callGemini(model, message, image);
-        } else {
-            return callOpenRouter(model, message);
-        }
+        // Delegate to orchestrator which handles model routing
+        return aiOrchestratorService.callAI(model, message, image);
     }
 
     /**
-     * Call Gemini models using the Google GenAI SDK
+     * Call Gemini using the working pattern from GeminiService
      */
-    private String callGemini(String model, String message, MultipartFile image) throws IOException {
+    private String callGemini(String message) {
         try {
             Client client = Client.builder()
                     .apiKey(geminiApiKey)
                     .build();
 
-            String modelName = model.equals("gemini-vision") ? "gemini-2.0-flash-exp" : "gemini-2.0-flash-exp";
+            GenerateContentResponse response = client.models.generateContent(
+                    "gemini-2.0-flash-exp",
+                    message,
+                    null
+            );
 
-            // If image is provided and model is gemini-vision, use multimodal
-            if (image != null && !image.isEmpty() && model.equals("gemini-vision")) {
-                return callGeminiWithImage(client, modelName, message, image);
-            } else {
-                // Text-only call
-                GenerateContentResponse response = client.models.generateContent(
-                        modelName,
-                        message,
-                        null
-                );
-                return response.text();
-            }
+            return response.text();
 
         } catch (Exception e) {
             return "Gemini Error: " + e.getMessage();
@@ -75,41 +58,7 @@ public class AIService {
     }
 
     /**
-     * Call Gemini with image (multimodal)
-     */
-    private String callGeminiWithImage(Client client, String modelName, String message, MultipartFile image) throws IOException {
-        try {
-            // Read image bytes
-            byte[] imageBytes = image.getBytes();
-            String mimeType = image.getContentType();
-            if (mimeType == null) {
-                mimeType = "image/jpeg"; // Default
-            }
-
-            // Create inline data for the image
-            Blob imageBlob = new Blob(mimeType, imageBytes);
-            Part imagePart = new Part(imageBlob);
-            Part textPart = new Part(message);
-
-            // Create content with both text and image
-            Content content = new Content(Arrays.asList(textPart, imagePart));
-
-            // Generate response
-            GenerateContentResponse response = client.models.generateContent(
-                    modelName,
-                    content,
-                    null
-            );
-
-            return response.text();
-
-        } catch (Exception e) {
-            return "Gemini Vision Error: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Call OpenRouter API for Gemma 3 and Grok 2 models
+     * Call OpenRouter for Gemma 3 and Grok 2
      */
     private String callOpenRouter(String model, String message) {
         try {

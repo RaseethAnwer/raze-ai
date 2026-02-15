@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Image as ImageIcon, Plus, MessageSquare, LogOut, Loader2, Menu, X } from 'lucide-react';
 import { createSession, getUserSessions, getSessionMessages, sendMessage } from '../services/chatService';
 import { logout } from '../services/authService';
-import ModelSelector from '../components/ModelSelector';
+import ModelDropdown from '../components/ModelDropdown';
 
 const Chat = () => {
     const [sessions, setSessions] = useState([]);
@@ -133,7 +133,8 @@ const Chat = () => {
             'gemini-2.0-flash': 'Gemini 2.0 Flash ⚡',
             'gemini-vision': 'Gemini Vision 🖼️',
             'google/gemma-3-4b-it:free': 'Gemma 3 4B Free 🔥',
-            'grok-2-latest': 'Grok 2 Latest 💎'
+            'grok-2-latest': 'Grok 2 Latest 💎',
+            'gemma-local': 'Gemma AI - local 🏠'
         };
         return modelNames[modelId] || modelId;
     };
@@ -179,11 +180,8 @@ const Chat = () => {
                             </button>
                         </div>
 
-                        {/* Model Selector */}
-                        <ModelSelector
-                            selectedModel={selectedModel}
-                            onSelectModel={setSelectedModel}
-                        />
+                        <ModelDropdown selectedModel={selectedModel} onSelectModel={setSelectedModel} />
+
 
                         <div className="flex-1 overflow-y-auto px-3 space-y-2 custom-scrollbar">
                             {sessions.map(session => (

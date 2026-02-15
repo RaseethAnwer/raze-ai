@@ -48,7 +48,7 @@ public class GeminiService {
     //  GROK (OPENROUTER) CONFIGURATION
     // ============================================
 
-    @Value("${openrouter.api.key}")
+    @Value("${gemma.api.key}")
     private String openrouterApiKey;
 
     private static final String OPENROUTER_URL =
